@@ -2,7 +2,7 @@ use std::{fs, path::{Path, PathBuf}};
 
 use log::warn;
 
-use crate::{err::Result, track_info::TrackInfo};
+use crate::{date::Date, err::Result, track_info::TrackInfo};
 
 #[derive(Default, Debug)]
 pub struct AlbumInfo {
@@ -11,7 +11,7 @@ pub struct AlbumInfo {
     pub artist: Option<String>,
     pub title: Option<String>,
     pub disc: Option<usize>,
-    pub year: Option<i32>,
+    pub date: Option<Date>,
     pub genre: Option<String>,
 
     pub tracks: Vec<(TrackInfo, PathBuf)>,
@@ -53,7 +53,7 @@ impl AlbumInfo {
         self.artist = self.tracks.iter().flat_map(|(t, _)| t.album_artist.clone()).chain(self.tracks.iter().flat_map(|(t, _)| t.artist.clone())).next();
         self.title = self.tracks.iter().flat_map(|(t, _)| t.album.clone()).next();
         self.disc = self.tracks.iter().flat_map(|(t, _)| t.disc).next();
-        self.year = self.tracks.iter().flat_map(|(t, _)| t.year).next();
+        self.date = self.tracks.iter().flat_map(|(t, _)| t.date).max();
         self.genre = self.tracks.iter().flat_map(|(t, _)| t.genre.clone()).next();
 
         for (t, _) in self.tracks.iter_mut() {
@@ -62,7 +62,7 @@ impl AlbumInfo {
             t.artist = t.artist.take().or_else(|| self.artist.clone());
             t.album = t.album.take().or_else(|| self.title.clone());
             t.disc = t.disc.or(self.disc);
-            t.year = t.year.or(self.year);
+            t.date = t.date.or(self.date);
             t.genre = t.genre.take().or_else(|| self.genre.clone());
         }
 

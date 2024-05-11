@@ -3,7 +3,7 @@ use std::{any::type_name, fmt::Display, path::Path, str::FromStr};
 use ini::{Ini, Properties};
 use log::{error, warn};
 
-use crate::err::Result;
+use crate::{date::Date, err::Result};
 
 #[derive(Default, Debug)]
 pub struct TrackInfo {
@@ -13,7 +13,7 @@ pub struct TrackInfo {
     pub album_artist: Option<String>,
     pub album: Option<String>,
     pub disc: Option<usize>,
-    pub year: Option<i32>,
+    pub date: Option<Date>,
     pub genre: Option<String>,
 
     // track info
@@ -38,7 +38,7 @@ impl TrackInfo {
             album_artist: Self::get_string(inf, "Albumperformer"),
             album: Self::get_string(inf, "Albumtitle"),
             disc: None,
-            year: None,
+            date: None,
             genre: None,
 
             isrc: Self::get_string(inf, "ISRC"),
