@@ -13,6 +13,8 @@ pub struct TrackInfo {
     pub album_artist: Option<String>,
     pub album: Option<String>,
     pub disc: Option<usize>,
+    pub year: Option<i32>,
+    pub genre: Option<String>,
 
     // track info
     pub isrc: Option<String>,
@@ -36,6 +38,8 @@ impl TrackInfo {
             album_artist: Self::get_string(inf, "Albumperformer"),
             album: Self::get_string(inf, "Albumtitle"),
             disc: None,
+            year: None,
+            genre: None,
 
             isrc: Self::get_string(inf, "ISRC"),
             artist: Self::get_string(inf, "Performer"),
