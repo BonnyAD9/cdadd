@@ -6,10 +6,10 @@ use crate::{err::Result, track_info::TrackInfo};
 
 #[derive(Default, Debug)]
 pub struct AlbumInfo {
-    pub cdindex_discid: Option<String>,
-    pub cddb_discid: Option<u32>,
-    pub album_performer: Option<String>,
-    pub album_title: Option<String>,
+    pub cdindex: Option<String>,
+    pub cddb: Option<u32>,
+    pub artist: Option<String>,
+    pub title: Option<String>,
     pub disc: Option<usize>,
 
     pub tracks: Vec<(TrackInfo, PathBuf)>,
@@ -44,7 +44,21 @@ impl AlbumInfo {
             }
         }
 
-        self.tracks.sort_by_key(|t| t.0.track_number);
+        self.tracks.sort_by_key(|t| t.0.track);
+
+        self.cdindex = self.tracks.iter().flat_map(|(t, _)| t.cdindex.clone()).next();
+        self.cddb = self.tracks.iter().flat_map(|(t, _)| t.cddb).next();
+        self.artist = self.tracks.iter().flat_map(|(t, _)| t.album_artist.clone()).chain(self.tracks.iter().flat_map(|(t, _)| t.artist.clone())).next();
+        self.title = self.tracks.iter().flat_map(|(t, _)| t.album.clone()).next();
+        self.disc = self.tracks.iter().flat_map(|(t, _)| t.disc).next();
+
+        for (t, _) in self.tracks.iter_mut() {
+            t.cdindex = t.cdindex.take().or_else(|| self.cdindex.clone());
+            t.cddb = t.cddb.or(self.cddb);
+            t.artist = t.artist.take().or_else(|| self.artist.clone());
+            t.album = t.album.take().or_else(|| self.title.clone());
+            t.disc = t.disc.or(self.disc);
+        }
 
         Ok(())
     }

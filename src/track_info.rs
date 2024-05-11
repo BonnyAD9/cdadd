@@ -8,17 +8,17 @@ use crate::err::Result;
 #[derive(Default, Debug)]
 pub struct TrackInfo {
     // album info
-    pub cdindex_discid: Option<String>,
-    pub cddb_discid: Option<u32>,
-    pub album_performer: Option<String>,
-    pub album_title: Option<String>,
+    pub cdindex: Option<String>,
+    pub cddb: Option<u32>,
+    pub album_artist: Option<String>,
+    pub album: Option<String>,
     pub disc: Option<usize>,
 
     // track info
     pub isrc: Option<String>,
-    pub performer: Option<String>,
-    pub track_title: Option<String>,
-    pub track_number: Option<usize>,
+    pub artist: Option<String>,
+    pub title: Option<String>,
+    pub track: Option<usize>,
 }
 
 impl TrackInfo {
@@ -31,16 +31,16 @@ impl TrackInfo {
         };
 
         Ok(Self {
-            cdindex_discid: Self::get_string(inf, "CDINDEX_DISCID"),
-            cddb_discid: Self::get_hex_u32(inf, "CDDB_DISCID"),
-            album_performer: Self::get_string(inf, "Albumperformer"),
-            album_title: Self::get_string(inf, "Albumtitle"),
+            cdindex: Self::get_string(inf, "CDINDEX_DISCID"),
+            cddb: Self::get_hex_u32(inf, "CDDB_DISCID"),
+            album_artist: Self::get_string(inf, "Albumperformer"),
+            album: Self::get_string(inf, "Albumtitle"),
             disc: None,
 
             isrc: Self::get_string(inf, "ISRC"),
-            performer: Self::get_string(inf, "Performer"),
-            track_title: Self::get_string(inf, "Tracktitle"),
-            track_number: Self::get_parse(inf, "Track"),
+            artist: Self::get_string(inf, "Performer"),
+            title: Self::get_string(inf, "Tracktitle"),
+            track: Self::get_parse(inf, "Track"),
         })
     }
 
