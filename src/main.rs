@@ -1,4 +1,4 @@
-use std::{fmt::Display, path::Path};
+use std::{fmt::Display, io::{self, Write}, path::Path};
 
 use album_info::AlbumInfo;
 use err::Result;
@@ -12,8 +12,8 @@ mod date;
 
 fn main() -> Result<()> {
     Logger::try_with_env().unwrap().start()?;
-    let album = AlbumInfo::from_dir("/home/kubas/test/test1")?;
-    print_album(&album);
+    let mut album = AlbumInfo::from_dir("/home/kubas/test/test1")?;
+    configure(&mut album)?;
     Ok(())
 }
 
@@ -22,7 +22,7 @@ fn print_album(album: &AlbumInfo) {
     println!("Artist : {}", field_str(album.artist.as_ref()));
     println!("Disc   : {}", field_str(album.disc));
     println!("CDINDEX: {}", field_str(album.cdindex.as_ref()));
-    println!("CDDB   : {}", field_str(album.cddb));
+    println!("CDDB   : {}", album.cddb.map_or_else(|| "--".to_owned(), |f| format!("{:x}", f)));
     println!("date   : {}", field_str(album.date));
     println!("genre  : {}", field_str(album.genre.as_ref()));
 
@@ -44,9 +44,106 @@ fn print_track(song: &TrackInfo, file: &Path) {
     println!("Album artist: {}", field_str(song.album_artist.as_ref()));
     println!("Disc        : {}", field_str(song.disc));
     println!("CDINDEX     : {}", field_str(song.cdindex.as_ref()));
-    println!("CDDB        : {}", field_str(song.cddb));
+    println!("CDDB        : {}", song.cddb.map_or_else(|| "--".to_owned(), |f| format!("{:x}", f)));
 }
 
 fn field_str<T>(field: Option<T>) -> String where T: Display {
     field.map_or_else(|| "--".to_owned(), |f| format!("{}", f))
+}
+
+fn configure(album: &mut AlbumInfo) -> Result<()> {
+    print_album(album);
+    let mut cmd = String::new();
+
+    loop {
+        print!("> ");
+        _ = io::stdout().flush();
+        io::stdin().read_line(&mut cmd)?;
+        if let Some(cmd) = cmd.trim().strip_prefix(':') {
+            let cmd = cmd.trim_start().to_lowercase();
+            match cmd.as_str() {
+                "done" => return Ok(()),
+                _ => println!("Unknown command '{}'", cmd),
+            }
+            continue;
+        }
+
+        let Some((fld, mut value)) = cmd.split_once(|c| matches!(c, ':' | '=')) else {
+            println!("Missing value for field");
+            continue;
+        };
+
+        let fld = fld.trim().to_ascii_lowercase();
+        value = value.trim();
+
+        match fld.as_ref() {
+            "album" => {
+                album.title = Some(value.to_owned());
+                for (t, _) in album.tracks.iter_mut() {
+                    t.album = Some(value.to_owned());
+                }
+            }
+            "artist" | "album artist" => {
+                album.artist = Some(value.to_owned());
+                for (t, _) in album.tracks.iter_mut() {
+                    t.album_artist = Some(value.to_owned());
+                }
+            }
+            "disc" => {
+                let disc = match value.parse() {
+                    Ok(d) => d,
+                    Err(e) => {
+                        println!("Failed to parse disc number: {e}");
+                        continue;
+                    }
+                };
+                album.disc = Some(disc);
+                for (t, _) in album.tracks.iter_mut() {
+                    t.disc = Some(disc);
+                }
+            }
+            "cdindex" | "cdindex discid" => {
+                album.cdindex = Some(value.to_owned());
+                for (t, _) in album.tracks.iter_mut() {
+                    t.cdindex = Some(value.to_owned());
+                }
+            }
+            "cddb" | "cddb discid" => {
+                let cddb = match u32::from_str_radix(value, 16) {
+                    Ok(d) => d,
+                    Err(e) => {
+                        println!("Failed to parse disc number: {e}");
+                        continue;
+                    }
+                };
+                album.cddb = Some(cddb);
+                for (t, _) in album.tracks.iter_mut() {
+                    t.cddb = Some(cddb);
+                }
+            }
+            "date" | "year" => {
+                let date = match value.parse() {
+                    Ok(d) => d,
+                    Err(e) => {
+                        println!("Failed to parse disc number: {e}");
+                        continue;
+                    }
+                };
+                album.date = Some(date);
+                for (t, _) in album.tracks.iter_mut() {
+                    t.date = Some(date);
+                }
+            }
+            "genre" => {
+                album.genre = Some(value.to_owned());
+                for (t, _) in album.tracks.iter_mut() {
+                    t.genre = Some(value.to_owned());
+                }
+            }
+            _ => {
+                println!("Unknown album field '{fld}'");
+            }
+        }
+        print_album(album);
+    }
 }
