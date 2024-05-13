@@ -6,6 +6,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error("Failed to parse date: invalid date format")]
     ParseDate,
+    #[error("Failed to parse cddb file.")]
+    ParseCddb,
     #[error(transparent)]
     Logger(#[from] flexi_logger::FlexiLoggerError),
     #[error(transparent)]

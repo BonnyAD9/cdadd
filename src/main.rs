@@ -9,10 +9,11 @@ mod track_info;
 mod err;
 mod album_info;
 mod date;
+mod cddb_read;
 
 fn main() -> Result<()> {
     Logger::try_with_env().unwrap().start()?;
-    let mut album = AlbumInfo::from_dir("/home/kubas/test/test1")?;
+    let mut album = AlbumInfo::from_dir("/home/kubas/test/test4")?;
     configure(&mut album)?;
     Ok(())
 }
@@ -23,8 +24,8 @@ fn print_album(album: &AlbumInfo) {
     println!("Disc   : {}", field_str(album.disc));
     println!("CDINDEX: {}", field_str(album.cdindex.as_ref()));
     println!("CDDB   : {}", album.cddb.map_or_else(|| "--".to_owned(), |f| format!("{:x}", f)));
-    println!("date   : {}", field_str(album.date));
-    println!("genre  : {}", field_str(album.genre.as_ref()));
+    println!("Date   : {}", field_str(album.date));
+    println!("Genre  : {}", field_str(album.genre.as_ref()));
 
     for (s, f) in album.tracks.iter() {
         println!();
@@ -42,6 +43,12 @@ fn print_track(song: &TrackInfo, file: &Path) {
     println!("Genre       : {}", field_str(song.genre.as_ref()));
     println!("Album       : {}", field_str(song.album.as_ref()));
     println!("Album artist: {}", field_str(song.album_artist.as_ref()));
+    let ats = song.artists.join(", ");
+    if ats.is_empty() {
+        println!("Performers  : --", );
+    } else {
+        println!("Performers  : {ats}");
+    }
     println!("Disc        : {}", field_str(song.disc));
     println!("CDINDEX     : {}", field_str(song.cdindex.as_ref()));
     println!("CDDB        : {}", song.cddb.map_or_else(|| "--".to_owned(), |f| format!("{:x}", f)));
@@ -58,6 +65,7 @@ fn configure(album: &mut AlbumInfo) -> Result<()> {
     loop {
         print!("> ");
         _ = io::stdout().flush();
+        cmd.clear();
         io::stdin().read_line(&mut cmd)?;
         if let Some(cmd) = cmd.trim().strip_prefix(':') {
             let cmd = cmd.trim_start().to_lowercase();

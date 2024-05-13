@@ -6,5 +6,6 @@ edition = "2021"
 [dependencies]
 flexi_logger = "0.28.0"
 log = "0.4.21"
+result = "1.0.0"
 rust-ini = "0.21.0"
 thiserror = "1.0.60"

@@ -19,6 +19,7 @@ pub struct TrackInfo {
     // track info
     pub isrc: Option<String>,
     pub artist: Option<String>,
+    pub artists: Vec<String>,
     pub title: Option<String>,
     pub track: Option<usize>,
 }
@@ -43,6 +44,7 @@ impl TrackInfo {
 
             isrc: Self::get_string(inf, "ISRC"),
             artist: Self::get_string(inf, "Performer"),
+            artists: vec![],
             title: Self::get_string(inf, "Tracktitle"),
             track: Self::get_parse(inf, "Track"),
         })
