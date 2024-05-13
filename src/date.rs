@@ -11,7 +11,11 @@ pub struct Date {
 
 impl Display for Date {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:04}-{:02}-{:02}", self.year, self.month, self.day)
+        if self.month == 0 {
+            write!(f, "{:04}", self.year)
+        } else {
+            write!(f, "{:04}-{:02}-{:02}", self.year, self.month, self.day)
+        }
     }
 }
 
@@ -42,8 +46,8 @@ impl Date {
     pub fn year(year: i32) -> Self {
         Self {
             year,
-            month: 1,
-            day: 1,
+            month: 0,
+            day: 0,
         }
     }
 }

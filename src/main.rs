@@ -11,6 +11,7 @@ mod album_info;
 mod date;
 mod cddb_read;
 mod get_perf;
+mod flac;
 
 fn main() -> Result<()> {
     Logger::try_with_env().unwrap().start()?;
@@ -19,6 +20,8 @@ fn main() -> Result<()> {
         return Ok(());
     }
     album.normalize();
+    println!("Encoding:");
+    flac::encode(&album, "test")?;
     Ok(())
 }
 

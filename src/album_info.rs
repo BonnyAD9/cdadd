@@ -73,11 +73,13 @@ impl AlbumInfo {
         for (t, _) in self.tracks.iter_mut() {
             t.cdindex = t.cdindex.take().or_else(|| self.cdindex.clone());
             t.cddb = t.cddb.or(self.cddb);
-            t.artist = t.artist.take().or_else(|| self.artist.clone());
+            t.album_artist = t.album_artist.take().or_else(|| self.artist.clone());
             t.disc_name = t.disc_name.take().or_else(|| self.disc_name.clone());
+            t.album = t.album.take().or_else(|| self.album_title.clone());
             t.disc = t.disc.or(self.disc);
             t.date = t.date.or(self.date);
             t.genre = t.genre.take().or_else(|| self.genre.clone());
+            t.artist = t.artist.take().or_else(|| self.artist.clone());
         }
 
         Ok(())
