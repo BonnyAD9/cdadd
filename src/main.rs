@@ -10,10 +10,11 @@ mod err;
 mod album_info;
 mod date;
 mod cddb_read;
+mod get_perf;
 
 fn main() -> Result<()> {
     Logger::try_with_env().unwrap().start()?;
-    let mut album = AlbumInfo::from_dir("/home/kubas/test/test4")?;
+    let mut album = AlbumInfo::from_dir("/home/kubas/test/test1")?;
     configure(&mut album)?;
     Ok(())
 }
@@ -43,11 +44,11 @@ fn print_track(song: &TrackInfo, file: &Path) {
     println!("Genre       : {}", field_str(song.genre.as_ref()));
     println!("Album       : {}", field_str(song.album.as_ref()));
     println!("Album artist: {}", field_str(song.album_artist.as_ref()));
-    let ats = song.artists.join(", ");
+    let ats = song.feat.join(", ");
     if ats.is_empty() {
-        println!("Performers  : --", );
+        println!("Featuring   : --", );
     } else {
-        println!("Performers  : {ats}");
+        println!("Featuring   : {ats}");
     }
     println!("Disc        : {}", field_str(song.disc));
     println!("CDINDEX     : {}", field_str(song.cdindex.as_ref()));

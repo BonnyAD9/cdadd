@@ -8,6 +8,8 @@ pub enum Error {
     ParseDate,
     #[error("Failed to parse cddb file.")]
     ParseCddb,
+    #[error("Failed to parse featuring from track name: {0}")]
+    ParseFeat(&'static str),
     #[error(transparent)]
     Logger(#[from] flexi_logger::FlexiLoggerError),
     #[error(transparent)]

@@ -3,7 +3,7 @@ use std::{any::type_name, fmt::Display, path::Path, str::FromStr};
 use ini::{Ini, Properties};
 use log::{error, warn};
 
-use crate::{date::Date, err::Result};
+use crate::{date::Date, err::Result, get_perf::get_perf};
 
 #[derive(Default, Debug)]
 pub struct TrackInfo {
@@ -19,7 +19,7 @@ pub struct TrackInfo {
     // track info
     pub isrc: Option<String>,
     pub artist: Option<String>,
-    pub artists: Vec<String>,
+    pub feat: Vec<String>,
     pub title: Option<String>,
     pub track: Option<usize>,
 }
@@ -33,6 +33,10 @@ impl TrackInfo {
             return Ok(Self::default());
         };
 
+        let title = Self::get_string(inf, "Tracktitle");
+
+        let feat = title.as_ref().and_then(|t| get_perf(t).inspect_err(|e| warn!("Failed to parse features from the title '{t}': {e}")).ok()).unwrap_or_default();
+
         Ok(Self {
             cdindex: Self::get_string(inf, "CDINDEX_DISCID"),
             cddb: Self::get_hex_u32(inf, "CDDB_DISCID"),
@@ -44,8 +48,8 @@ impl TrackInfo {
 
             isrc: Self::get_string(inf, "ISRC"),
             artist: Self::get_string(inf, "Performer"),
-            artists: vec![],
-            title: Self::get_string(inf, "Tracktitle"),
+            feat,
+            title,
             track: Self::get_parse(inf, "Track"),
         })
     }
