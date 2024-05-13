@@ -26,6 +26,12 @@ impl AlbumInfo {
         Ok(res)
     }
 
+    pub fn normalize(&mut self) {
+        for (t, _) in &mut self.tracks {
+            t.normalize();
+        }
+    }
+
     fn load_dir(&mut self, path: &Path) -> Result<()> {
         for f in fs::read_dir(path)? {
             let f = f?;

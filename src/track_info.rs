@@ -56,6 +56,15 @@ impl TrackInfo {
         })
     }
 
+    pub fn normalize(&mut self) {
+        if self.album_artist == self.artist {
+            self.album_artist = None;
+        }
+        if self.disc_name == self.album {
+            self.disc_name = None;
+        }
+    }
+
     fn get_string<S>(inf: &mut Properties, name: S) -> Option<String> where S: AsRef<str> {
         if let Some(s) = inf.remove(&name) {
             if s.is_empty() {

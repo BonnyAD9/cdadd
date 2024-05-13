@@ -18,6 +18,7 @@ fn main() -> Result<()> {
     if !configure(&mut album)? {
         return Ok(());
     }
+    album.normalize();
     Ok(())
 }
 
