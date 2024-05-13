@@ -15,7 +15,9 @@ mod get_perf;
 fn main() -> Result<()> {
     Logger::try_with_env().unwrap().start()?;
     let mut album = AlbumInfo::from_dir("/home/kubas/test/test1")?;
-    configure(&mut album)?;
+    if !configure(&mut album)? {
+        return Ok(());
+    }
     Ok(())
 }
 
@@ -61,7 +63,7 @@ fn field_str<T>(field: Option<T>) -> String where T: Display {
     field.map_or_else(|| "--".to_owned(), |f| format!("{}", f))
 }
 
-fn configure(album: &mut AlbumInfo) -> Result<()> {
+fn configure(album: &mut AlbumInfo) -> Result<bool> {
     print_album(album);
     let mut cmd = String::new();
 
@@ -73,7 +75,8 @@ fn configure(album: &mut AlbumInfo) -> Result<()> {
         if let Some(cmd) = cmd.trim().strip_prefix(':') {
             let cmd = cmd.trim_start().to_lowercase();
             match cmd.as_str() {
-                "done" => return Ok(()),
+                "done" | "d" => return Ok(true),
+                "quit" | "q" | "cancel" => return Ok(false),
                 _ => println!("Unknown command '{}'", cmd),
             }
             continue;
