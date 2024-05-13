@@ -10,7 +10,8 @@ pub struct AlbumInfo {
     pub cdindex: Option<String>,
     pub cddb: Option<u32>,
     pub artist: Option<String>,
-    pub title: Option<String>,
+    pub disc_name: Option<String>,
+    pub album_title: Option<String>,
     pub disc: Option<usize>,
     pub date: Option<Date>,
     pub genre: Option<String>,
@@ -57,7 +58,8 @@ impl AlbumInfo {
         self.cdindex = self.cdindex.take().or_else(|| self.tracks.iter().flat_map(|(t, _)| t.cdindex.clone()).next());
         self.cddb = self.cddb.or_else(|| self.tracks.iter().flat_map(|(t, _)| t.cddb).next());
         self.artist = self.artist.take().or_else(|| self.tracks.iter().flat_map(|(t, _)| t.album_artist.clone()).chain(self.tracks.iter().flat_map(|(t, _)| t.artist.clone())).next());
-        self.title = self.title.take().or_else(|| self.tracks.iter().flat_map(|(t, _)| t.album.clone()).next());
+        self.disc_name = self.disc_name.take().or_else(|| self.tracks.iter().flat_map(|(t, _)| t.disc_name.clone()).next());
+        self.album_title = self.album_title.take().or_else(|| self.tracks.iter().flat_map(|(t, _)| t.album.clone()).next()).or_else(|| self.disc_name.clone());
         self.disc = self.disc.or_else(|| self.tracks.iter().flat_map(|(t, _)| t.disc).next());
         self.date = self.date.or_else(|| self.tracks.iter().flat_map(|(t, _)| t.date).max());
         self.genre = self.genre.take().or_else(|| self.tracks.iter().flat_map(|(t, _)| t.genre.clone()).next());
@@ -66,7 +68,7 @@ impl AlbumInfo {
             t.cdindex = t.cdindex.take().or_else(|| self.cdindex.clone());
             t.cddb = t.cddb.or(self.cddb);
             t.artist = t.artist.take().or_else(|| self.artist.clone());
-            t.album = t.album.take().or_else(|| self.title.clone());
+            t.disc_name = t.disc_name.take().or_else(|| self.disc_name.clone());
             t.disc = t.disc.or(self.disc);
             t.date = t.date.or(self.date);
             t.genre = t.genre.take().or_else(|| self.genre.clone());
@@ -82,7 +84,7 @@ impl AlbumInfo {
         if let Some(at) = cddb.remove("DTITLE") {
             if let Some((artist, album)) = at.split_once(" / ") {
                 self.artist = Some(artist.to_owned());
-                self.title = Some(album.to_owned());
+                self.disc_name = Some(album.to_owned());
             }
         }
         self.date = cddb.remove("DYEAR").map(|y| y.parse()).invert()?;

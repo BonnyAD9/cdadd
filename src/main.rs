@@ -20,13 +20,14 @@ fn main() -> Result<()> {
 }
 
 fn print_album(album: &AlbumInfo) {
-    println!("Album  : {}", field_str(album.title.as_ref()));
-    println!("Artist : {}", field_str(album.artist.as_ref()));
-    println!("Disc   : {}", field_str(album.disc));
-    println!("CDINDEX: {}", field_str(album.cdindex.as_ref()));
-    println!("CDDB   : {}", album.cddb.map_or_else(|| "--".to_owned(), |f| format!("{:x}", f)));
-    println!("Date   : {}", field_str(album.date));
-    println!("Genre  : {}", field_str(album.genre.as_ref()));
+    println!("Album    : {}", field_str(album.album_title.as_ref()));
+    println!("Disc name: {}", field_str(album.disc_name.as_ref()));
+    println!("Artist   : {}", field_str(album.artist.as_ref()));
+    println!("Disc     : {}", field_str(album.disc));
+    println!("CDINDEX  : {}", field_str(album.cdindex.as_ref()));
+    println!("CDDB     : {}", album.cddb.map_or_else(|| "--".to_owned(), |f| format!("{:x}", f)));
+    println!("Date     : {}", field_str(album.date));
+    println!("Genre    : {}", field_str(album.genre.as_ref()));
 
     for (s, f) in album.tracks.iter() {
         println!();
@@ -43,6 +44,7 @@ fn print_track(song: &TrackInfo, file: &Path) {
     println!("Date        : {}", field_str(song.date));
     println!("Genre       : {}", field_str(song.genre.as_ref()));
     println!("Album       : {}", field_str(song.album.as_ref()));
+    println!("Disc name   : {}", field_str(song.disc_name.as_ref()));
     println!("Album artist: {}", field_str(song.album_artist.as_ref()));
     let ats = song.feat.join(", ");
     if ats.is_empty() {
@@ -86,8 +88,14 @@ fn configure(album: &mut AlbumInfo) -> Result<()> {
         value = value.trim();
 
         match fld.as_ref() {
+            "disc name" => {
+                album.disc_name = Some(value.to_owned());
+                for (t, _) in album.tracks.iter_mut() {
+                    t.disc_name = Some(value.to_owned());
+                }
+            }
             "album" => {
-                album.title = Some(value.to_owned());
+                album.album_title = Some(value.to_owned());
                 for (t, _) in album.tracks.iter_mut() {
                     t.album = Some(value.to_owned());
                 }
