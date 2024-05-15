@@ -14,6 +14,5 @@ TODO: brief example
 
 [author]: https://github.com/BonnyAD9
 [repo]: https://github.com/BonnyAD9/cdadd
-[version-badge]: https://img.shields.io/aur/version/cdadd
 [my-web]: https://bonnyad.github.io
 [releases]: https://github.com/BonnyAD9/cdadd/releases
