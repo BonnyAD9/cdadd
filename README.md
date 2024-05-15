@@ -1,5 +1,8 @@
 # cdadd
-Small utility for ripping and encoding CDs.
+Small utility for ripping encoding CDs.
+
+Ripping is not implemented yet. Encoding is done using `flac`. The metadata
+files are expected to be produced by `cdda2wav`.
 
 ## Usage
 TODO: brief example
