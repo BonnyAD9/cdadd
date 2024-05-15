@@ -50,8 +50,10 @@ version = "0.1.0"
 dependencies = [
  "flexi_logger",
  "log",
+ "pareg",
  "result",
  "rust-ini",
+ "termal",
  "thiserror",
 ]
 
@@ -91,6 +93,15 @@ dependencies = [
  "getrandom",
  "once_cell",
  "tiny-keccak",
+]
+
+[[package]]
+name = "convert_case"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
+dependencies = [
+ "unicode-segmentation",
 ]
 
 [[package]]
@@ -208,6 +219,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae743338b92ff9146ce83992f766a31066a91a8c84a45e0e9f21e7cf6de6d346"
 
 [[package]]
+name = "litrs"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4ce301924b7887e9d637144fdade93f9dfff9b60981d4ac161db09720d39aa5"
+dependencies = [
+ "proc-macro2",
+]
+
+[[package]]
 name = "log"
 version = "0.4.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -251,6 +271,67 @@ checksum = "49203cdcae0030493bad186b28da2fa25645fa276a51b6fec8010d281e02ef79"
 dependencies = [
  "dlv-list",
  "hashbrown",
+]
+
+[[package]]
+name = "pareg"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cba55972eb62236f7d87bf47c471b671039f76f32eef68e8fadb9e457b456350"
+dependencies = [
+ "pareg_core",
+ "pareg_proc",
+]
+
+[[package]]
+name = "pareg_core"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c8cec1b1589c0afb665ea75a7e1f1b43bfd59d9d7e3e816da12ca9966de80117"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+ "thiserror",
+]
+
+[[package]]
+name = "pareg_proc"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed7496e41b6826863a1fe99a81990f9cae461d14134a1f49aff0c8c8999689a2"
+dependencies = [
+ "pareg_core",
+]
+
+[[package]]
+name = "place_macro"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ded910602eebb5e39317d37dbfa6f2f470b5759d0e06b456e940207c861f17aa"
+dependencies = [
+ "place_macro_proc",
+]
+
+[[package]]
+name = "place_macro_core"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "15a4aeb20828217e746ffbeba3120133961b4fc699995589443a386a78918e9d"
+dependencies = [
+ "convert_case",
+ "litrs",
+ "proc-macro2",
+]
+
+[[package]]
+name = "place_macro_proc"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "278f0d63044c8f6a1e19d3c20b8ef2de4b5a0a845f5e42ab20d5a8bcb98755ab"
+dependencies = [
+ "place_macro_core",
+ "proc-macro2",
 ]
 
 [[package]]
@@ -329,6 +410,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "termal"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b3ad5d007b5d3d029ee63c7df4ea7b81597b51c25b9be00771c15f850493928"
+dependencies = [
+ "termal_core",
+ "termal_proc",
+]
+
+[[package]]
+name = "termal_core"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "037dc9210f75b71f5b3583780e5534af720c9565b6de5e4c1e7f6fe68ed7bdce"
+dependencies = [
+ "litrs",
+ "place_macro",
+ "proc-macro2",
+ "thiserror",
+]
+
+[[package]]
+name = "termal_proc"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9fcfe92759d5b27bffd727400d03a0f70f83eebd6bf589f175894a5d638c99a0"
+dependencies = [
+ "termal_core",
+]
+
+[[package]]
 name = "thiserror"
 version = "1.0.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -368,6 +480,12 @@ name = "unicode-ident"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
+
+[[package]]
+name = "unicode-segmentation"
+version = "1.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4c87d22b6e3f4a18d4d40ef354e97c90fcb14dd91d7dc0aa9d8a1172ebf7202"
 
 [[package]]
 name = "wasi"

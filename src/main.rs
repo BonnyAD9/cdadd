@@ -1,31 +1,96 @@
 use std::{
+    borrow::Cow,
+    env,
     fmt::Display,
-    io::{self, Write},
+    io::{self, IsTerminal, Write},
     path::Path,
+    process::ExitCode,
 };
 
 use album_info::AlbumInfo;
 use err::Result;
 use flexi_logger::Logger;
+use termal::printmcln;
 use track_info::TrackInfo;
+
+use crate::cli::{Action, Args};
 
 mod album_info;
 mod cddb_read;
+mod cli;
 mod date;
 mod err;
 mod flac;
 mod get_perf;
 mod track_info;
 
-fn main() -> Result<()> {
+fn main() -> ExitCode {
+    match start() {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => {
+            println!("{e}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+fn start() -> Result<()> {
     Logger::try_with_env().unwrap().start()?;
-    let mut album = AlbumInfo::from_dir("/home/kubas/test/test1")?;
-    if !configure(&mut album)? {
+
+    let args: Vec<_> = env::args().collect();
+    let args = Args::parse(args.iter().into())?;
+    match args.action() {
+        Action::Help => help(),
+        Action::Encode(p) => encode(&args, p.as_ref())?,
+    }
+    Ok(())
+}
+
+fn help() {
+    let v = option_env!("CARGO_PKG_VERSION").unwrap_or("unknown");
+    let is_term = io::stdout().is_terminal();
+    let sign: Cow<str> = if is_term {
+        termal::gradient("BonnyAD9", (250, 50, 170), (180, 50, 240)).into()
+    } else {
+        "BonnyAD9".into()
+    };
+
+    printmcln!(
+        is_term,
+        "Welcome in help for {'g i}cdadd{'_} by {sign}{'_}
+Version {v}
+
+{'g}Usage:
+  {'c}cdadd {'w}-h{'_}
+    Shows this help.
+
+  {'c}cdadd {'w}-e <path> {'gr}[output dir] [{'dg}flags{'gr}]{'_}
+    Encodes album in the folder given by {'w}path{'_}. Use {'y}-o{'_} if the
+    {'gr}output dir{'_} starts with {'bold}-{'_}.
+
+{'g}Flags:
+  {'y}-h  -?  --help{'_}
+    Shows this help.
+
+  {'y}-e  --encode {'w}<path>{'_}
+    Encodes album in the folder given by {'w}path{'_}.
+
+  {'y}-i  --interactive{'_}
+    Enables interactive mode for metadata.
+
+  {'y}-o  --output{'_}
+    Sets the output directory. This is {'i}cwd{'_} by default."
+    );
+}
+
+fn encode(args: &Args, src: &str) -> Result<()> {
+    let mut album = AlbumInfo::from_dir(src)?;
+    if args.interactive && !configure(&mut album)? {
         return Ok(());
     }
     album.normalize();
     println!("Encoding:");
-    flac::encode(&album, "test")?;
+    flac::encode(&album, args.output())?;
     Ok(())
 }
 
