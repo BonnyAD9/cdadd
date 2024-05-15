@@ -1,17 +1,21 @@
-use std::{fmt::Display, io::{self, Write}, path::Path};
+use std::{
+    fmt::Display,
+    io::{self, Write},
+    path::Path,
+};
 
 use album_info::AlbumInfo;
 use err::Result;
 use flexi_logger::Logger;
 use track_info::TrackInfo;
 
-mod track_info;
-mod err;
 mod album_info;
-mod date;
 mod cddb_read;
-mod get_perf;
+mod date;
+mod err;
 mod flac;
+mod get_perf;
+mod track_info;
 
 fn main() -> Result<()> {
     Logger::try_with_env().unwrap().start()?;
@@ -31,7 +35,12 @@ fn print_album(album: &AlbumInfo) {
     println!("Artist   : {}", field_str(album.artist.as_ref()));
     println!("Disc     : {}", field_str(album.disc));
     println!("CDINDEX  : {}", field_str(album.cdindex.as_ref()));
-    println!("CDDB     : {}", album.cddb.map_or_else(|| "--".to_owned(), |f| format!("{:x}", f)));
+    println!(
+        "CDDB     : {}",
+        album
+            .cddb
+            .map_or_else(|| "--".to_owned(), |f| format!("{:x}", f))
+    );
     println!("Date     : {}", field_str(album.date));
     println!("Genre    : {}", field_str(album.genre.as_ref()));
 
@@ -54,16 +63,23 @@ fn print_track(song: &TrackInfo, file: &Path) {
     println!("Album artist: {}", field_str(song.album_artist.as_ref()));
     let ats = song.feat.join(", ");
     if ats.is_empty() {
-        println!("Featuring   : --", );
+        println!("Featuring   : --",);
     } else {
         println!("Featuring   : {ats}");
     }
     println!("Disc        : {}", field_str(song.disc));
     println!("CDINDEX     : {}", field_str(song.cdindex.as_ref()));
-    println!("CDDB        : {}", song.cddb.map_or_else(|| "--".to_owned(), |f| format!("{:x}", f)));
+    println!(
+        "CDDB        : {}",
+        song.cddb
+            .map_or_else(|| "--".to_owned(), |f| format!("{:x}", f))
+    );
 }
 
-fn field_str<T>(field: Option<T>) -> String where T: Display {
+fn field_str<T>(field: Option<T>) -> String
+where
+    T: Display,
+{
     field.map_or_else(|| "--".to_owned(), |f| format!("{}", f))
 }
 
@@ -86,7 +102,9 @@ fn configure(album: &mut AlbumInfo) -> Result<bool> {
             continue;
         }
 
-        let Some((fld, mut value)) = cmd.split_once(|c| matches!(c, ':' | '=')) else {
+        let Some((fld, mut value)) =
+            cmd.split_once(|c| matches!(c, ':' | '='))
+        else {
             println!("Missing value for field");
             continue;
         };

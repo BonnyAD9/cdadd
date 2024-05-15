@@ -25,10 +25,8 @@ impl FromStr for Date {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let c: Vec<_> = s.split('-').collect();
         match c[..] {
-            [ y, m, d ] => {
-                Ok(Self::new(y.parse()?, m.parse()?, d.parse()?))
-            }
-            [ y ] => Ok(Self::year(y.parse()?)),
+            [y, m, d] => Ok(Self::new(y.parse()?, m.parse()?, d.parse()?)),
+            [y] => Ok(Self::year(y.parse()?)),
             _ => Err(Error::ParseDate),
         }
     }
@@ -36,11 +34,7 @@ impl FromStr for Date {
 
 impl Date {
     pub fn new(year: i32, month: u8, day: u8) -> Self {
-        Self {
-            year,
-            month,
-            day,
-        }
+        Self { year, month, day }
     }
 
     pub fn year(year: i32) -> Self {

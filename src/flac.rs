@@ -1,24 +1,25 @@
-use std::{fmt::{format, Display}, fs, os::unix::process::CommandExt, path::Path, process::{Command, Stdio}};
+use std::{fmt::Display, fs, path::Path, process::Command};
 
 use log::error;
 
 use crate::{album_info::AlbumInfo, err::Result, track_info::TrackInfo};
 
-pub fn encode<P>(album: &AlbumInfo, dst: P) -> Result<()> where P: AsRef<Path> {
+pub fn encode<P>(album: &AlbumInfo, dst: P) -> Result<()>
+where
+    P: AsRef<Path>,
+{
     fs::create_dir_all(&dst)?;
     let mut tasks = vec![];
     for (i, (t, p)) in album.tracks.iter().enumerate() {
         let mut cmd = Command::new("flac");
         cmd.arg(p);
         cmd.args(["--best", "-o"]);
-        cmd.arg(dst.as_ref().join(
-            match (t.track, &t.title) {
-                (Some(n), Some(t)) => format!("{n:02}. {t}.flac"),
-                (Some(n), None) => format!("{n:02}.flac"),
-                (None, Some(t)) => format!("{:02}, {t}.flac", i + 1),
-                _ => format!("{:02}.flac", i + 1),
-            }
-        ));
+        cmd.arg(dst.as_ref().join(match (t.track, &t.title) {
+            (Some(n), Some(t)) => format!("{n:02}. {t}.flac"),
+            (Some(n), None) => format!("{n:02}.flac"),
+            (None, Some(t)) => format!("{:02}, {t}.flac", i + 1),
+            _ => format!("{:02}.flac", i + 1),
+        }));
         add_metadata(&mut cmd, t);
         tasks.push(cmd.spawn());
     }
@@ -44,7 +45,10 @@ pub fn encode<P>(album: &AlbumInfo, dst: P) -> Result<()> where P: AsRef<Path> {
 }
 
 fn add_metadata(cmd: &mut Command, track: &TrackInfo) {
-    fn add_meta<T>(cmd: &mut Command, name: &str, value: Option<T>) where T: Display {
+    fn add_meta<T>(cmd: &mut Command, name: &str, value: Option<T>)
+    where
+        T: Display,
+    {
         if let Some(value) = value {
             cmd.args(["-T", &format!("{name}={value}")]);
         }

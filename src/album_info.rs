@@ -1,9 +1,15 @@
-use std::{fs::{self, File}, io::BufReader, path::{Path, PathBuf}};
+use std::{
+    fs::{self, File},
+    io::BufReader,
+    path::{Path, PathBuf},
+};
 
 use log::warn;
 use result::OptionResultExt;
 
-use crate::{cddb_read::read_cddb, date::Date, err::Result, track_info::TrackInfo};
+use crate::{
+    cddb_read::read_cddb, date::Date, err::Result, track_info::TrackInfo,
+};
 
 #[derive(Default, Debug)]
 pub struct AlbumInfo {
@@ -20,7 +26,10 @@ pub struct AlbumInfo {
 }
 
 impl AlbumInfo {
-    pub fn from_dir<P>(path: P) -> Result<Self> where P: AsRef<Path> {
+    pub fn from_dir<P>(path: P) -> Result<Self>
+    where
+        P: AsRef<Path>,
+    {
         let mut res = Self::default();
         res.load_dir(path.as_ref())?;
         Ok(res)
@@ -35,7 +44,8 @@ impl AlbumInfo {
     fn load_dir(&mut self, path: &Path) -> Result<()> {
         for f in fs::read_dir(path)? {
             let f = f?;
-            if let Some(ex) = f.path().extension() {
+            let mut path = f.path();
+            if let Some(ex) = path.extension() {
                 if ex != "wav" {
                     continue;
                 }
@@ -43,13 +53,13 @@ impl AlbumInfo {
                 continue;
             }
 
-            let mut path = f.path().to_owned();
             path.set_extension("inf");
             match TrackInfo::from_file(path) {
-                Ok(i) => self.tracks.push((i, f.path().into())),
+                Ok(i) => self.tracks.push((i, f.path())),
                 Err(e) => {
-                    warn!("Failed to read info file for {:?}: {e}", f.path());
-                    self.tracks.push((TrackInfo::default(), f.path().into()));
+                    let path = f.path();
+                    warn!("Failed to read info file for {path:?}: {e}");
+                    self.tracks.push((TrackInfo::default(), path));
                 }
             }
         }
@@ -61,20 +71,52 @@ impl AlbumInfo {
             warn!("Failed to read cddb file {cddb_file:?}: {e}");
         }
 
-        self.cdindex = self.cdindex.take().or_else(|| self.tracks.iter().flat_map(|(t, _)| t.cdindex.clone()).next());
-        self.cddb = self.cddb.or_else(|| self.tracks.iter().flat_map(|(t, _)| t.cddb).next());
-        self.artist = self.artist.take().or_else(|| self.tracks.iter().flat_map(|(t, _)| t.album_artist.clone()).chain(self.tracks.iter().flat_map(|(t, _)| t.artist.clone())).next());
-        self.disc_name = self.disc_name.take().or_else(|| self.tracks.iter().flat_map(|(t, _)| t.disc_name.clone()).next());
-        self.album_title = self.album_title.take().or_else(|| self.tracks.iter().flat_map(|(t, _)| t.album.clone()).next()).or_else(|| self.disc_name.clone());
-        self.disc = self.disc.or_else(|| self.tracks.iter().flat_map(|(t, _)| t.disc).next());
-        self.date = self.date.or_else(|| self.tracks.iter().flat_map(|(t, _)| t.date).max());
-        self.genre = self.genre.take().or_else(|| self.tracks.iter().flat_map(|(t, _)| t.genre.clone()).next());
+        self.cdindex = self.cdindex.take().or_else(|| {
+            self.tracks
+                .iter()
+                .flat_map(|(t, _)| t.cdindex.clone())
+                .next()
+        });
+        self.cddb = self
+            .cddb
+            .or_else(|| self.tracks.iter().flat_map(|(t, _)| t.cddb).next());
+        self.artist = self.artist.take().or_else(|| {
+            self.tracks
+                .iter()
+                .flat_map(|(t, _)| t.album_artist.clone())
+                .chain(self.tracks.iter().flat_map(|(t, _)| t.artist.clone()))
+                .next()
+        });
+        self.disc_name = self.disc_name.take().or_else(|| {
+            self.tracks
+                .iter()
+                .flat_map(|(t, _)| t.disc_name.clone())
+                .next()
+        });
+        self.album_title = self
+            .album_title
+            .take()
+            .or_else(|| {
+                self.tracks.iter().flat_map(|(t, _)| t.album.clone()).next()
+            })
+            .or_else(|| self.disc_name.clone());
+        self.disc = self
+            .disc
+            .or_else(|| self.tracks.iter().flat_map(|(t, _)| t.disc).next());
+        self.date = self
+            .date
+            .or_else(|| self.tracks.iter().flat_map(|(t, _)| t.date).max());
+        self.genre = self.genre.take().or_else(|| {
+            self.tracks.iter().flat_map(|(t, _)| t.genre.clone()).next()
+        });
 
         for (t, _) in self.tracks.iter_mut() {
             t.cdindex = t.cdindex.take().or_else(|| self.cdindex.clone());
             t.cddb = t.cddb.or(self.cddb);
-            t.album_artist = t.album_artist.take().or_else(|| self.artist.clone());
-            t.disc_name = t.disc_name.take().or_else(|| self.disc_name.clone());
+            t.album_artist =
+                t.album_artist.take().or_else(|| self.artist.clone());
+            t.disc_name =
+                t.disc_name.take().or_else(|| self.disc_name.clone());
             t.album = t.album.take().or_else(|| self.album_title.clone());
             t.disc = t.disc.or(self.disc);
             t.date = t.date.or(self.date);
@@ -88,7 +130,10 @@ impl AlbumInfo {
     fn read_cddb(&mut self, cddb_file: &Path) -> Result<()> {
         let mut cddb = read_cddb(BufReader::new(File::open(cddb_file)?))?;
 
-        self.cddb = cddb.remove("DISCID").map(|c| u32::from_str_radix(&c, 16)).invert()?;
+        self.cddb = cddb
+            .remove("DISCID")
+            .map(|c| u32::from_str_radix(&c, 16))
+            .invert()?;
         if let Some(at) = cddb.remove("DTITLE") {
             if let Some((artist, album)) = at.split_once(" / ") {
                 self.artist = Some(artist.to_owned());

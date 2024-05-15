@@ -2,7 +2,10 @@ use std::{collections::HashMap, io::BufRead};
 
 use crate::err::{Error, Result};
 
-pub fn read_cddb<R>(input: R) -> Result<HashMap<String, String>> where R: BufRead {
+pub fn read_cddb<R>(input: R) -> Result<HashMap<String, String>>
+where
+    R: BufRead,
+{
     let mut res = HashMap::new();
 
     for l in input.lines() {

@@ -9,5 +9,9 @@ pub fn get_perf(s: &str) -> Result<Vec<String>> {
         return Err(Error::ParseFeat("Missing closing ')'"));
     };
 
-    Ok(perf.split('&').flat_map(|p| p.split('&')).map(|s| s.trim().to_owned()).collect())
+    Ok(perf
+        .split('&')
+        .flat_map(|p| p.split('&'))
+        .map(|s| s.trim().to_owned())
+        .collect())
 }

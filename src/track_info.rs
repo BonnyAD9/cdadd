@@ -26,7 +26,10 @@ pub struct TrackInfo {
 }
 
 impl TrackInfo {
-    pub fn from_file<P>(path: P) -> Result<Self> where P: AsRef<Path> {
+    pub fn from_file<P>(path: P) -> Result<Self>
+    where
+        P: AsRef<Path>,
+    {
         let mut info = Ini::load_from_file(&path)?;
 
         let Some(inf) = info.section_mut::<String>(None) else {
@@ -65,7 +68,10 @@ impl TrackInfo {
         }
     }
 
-    fn get_string<S>(inf: &mut Properties, name: S) -> Option<String> where S: AsRef<str> {
+    fn get_string<S>(inf: &mut Properties, name: S) -> Option<String>
+    where
+        S: AsRef<str>,
+    {
         if let Some(s) = inf.remove(&name) {
             if s.is_empty() {
                 warn!("Value for property '{}' is empty.", name.as_ref());
@@ -79,7 +85,12 @@ impl TrackInfo {
         }
     }
 
-    fn get_parse<V, S>(inf: &Properties, name: S) -> Option<V> where S: AsRef<str>, V: FromStr, V::Err: Display {
+    fn get_parse<V, S>(inf: &Properties, name: S) -> Option<V>
+    where
+        S: AsRef<str>,
+        V: FromStr,
+        V::Err: Display,
+    {
         if let Some(s) = inf.get(&name) {
             if s.is_empty() {
                 warn!("Value for property '{}' is empty.", name.as_ref());
@@ -88,7 +99,10 @@ impl TrackInfo {
                 match s.parse::<V>() {
                     Ok(v) => Some(v),
                     Err(e) => {
-                        error!("Failed to parse '{s}' into {}: {e}", type_name::<V>());
+                        error!(
+                            "Failed to parse '{s}' into {}: {e}",
+                            type_name::<V>()
+                        );
                         None
                     }
                 }
@@ -99,7 +113,10 @@ impl TrackInfo {
         }
     }
 
-    fn get_hex_u32<S>(inf: &Properties, name: S) -> Option<u32> where S: AsRef<str> {
+    fn get_hex_u32<S>(inf: &Properties, name: S) -> Option<u32>
+    where
+        S: AsRef<str>,
+    {
         if let Some(mut s) = inf.get(&name) {
             if s.is_empty() {
                 warn!("Value for property '{}' is empty.", name.as_ref());
