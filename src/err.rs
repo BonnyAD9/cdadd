@@ -23,11 +23,11 @@ pub enum Error {
     #[error(transparent)]
     ParseInt(#[from] std::num::ParseIntError),
     #[error(transparent)]
-    Pareg(pareg::ArgError<'static>),
+    Pareg(#[from] Box<pareg::ArgError>),
 }
 
-impl<'a> From<pareg::ArgError<'a>> for Error {
-    fn from(value: pareg::ArgError<'a>) -> Self {
-        Self::Pareg(value.into_owned())
+impl From<pareg::ArgError> for Error {
+    fn from(value: pareg::ArgError) -> Self {
+        Box::new(value).into()
     }
 }

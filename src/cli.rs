@@ -1,35 +1,29 @@
-use std::borrow::Cow;
-
 use log::warn;
-use pareg::{ArgError, ArgIterator, ByRef};
+use pareg::Pareg;
 
 use crate::err::{Error, Result};
 
-pub enum Action<'a> {
+pub enum Action {
     Help,
-    Encode(Cow<'a, str>),
+    Encode(String),
 }
 
 #[derive(Default)]
-pub struct Args<'a> {
-    action: Option<Action<'a>>,
-    output: Option<Cow<'a, str>>,
+pub struct Args {
+    action: Option<Action>,
+    output: Option<String>,
     pub interactive: bool,
 }
 
-impl<'a> Args<'a> {
-    pub fn parse<I>(args: ArgIterator<'a, I>) -> Result<Self>
-    where
-        I: Iterator,
-        I::Item: ByRef<&'a str>,
-    {
+impl Args {
+    pub fn parse(args: Pareg) -> Result<Self> {
         let mut res = Self::default();
         res.parse_base(args)?;
         res.validate()?;
         Ok(res)
     }
 
-    pub fn output(&'a self) -> &'a str {
+    pub fn output(&self) -> &str {
         self.output.as_ref().map_or(".", |o| o.as_ref())
     }
 
@@ -37,11 +31,7 @@ impl<'a> Args<'a> {
         self.action.as_ref().unwrap()
     }
 
-    fn parse_base<I>(&mut self, mut args: ArgIterator<'a, I>) -> Result<()>
-    where
-        I: Iterator,
-        I::Item: ByRef<&'a str>,
-    {
+    fn parse_base(&mut self, mut args: Pareg) -> Result<()> {
         while let Some(arg) = args.next() {
             match arg {
                 "-h" | "--help" | "-?" => self.set_help()?,
@@ -52,7 +42,7 @@ impl<'a> Args<'a> {
                     self.output = Some(args.cur_arg()?)
                 }
                 _ => {
-                    Err(ArgError::UnknownArgument(arg.into()))?;
+                    Err(args.err_unknown_argument())?;
                 }
             }
         }
@@ -60,7 +50,7 @@ impl<'a> Args<'a> {
         Ok(())
     }
 
-    fn set_encode(&mut self, path: Cow<'a, str>) -> Result<()> {
+    fn set_encode(&mut self, path: String) -> Result<()> {
         if self.action.is_some() {
             Err(Error::InvalidUsage("Multiple actions specified.".into()))
         } else {

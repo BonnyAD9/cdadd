@@ -1,6 +1,5 @@
 use std::{
     borrow::Cow,
-    env,
     fmt::Display,
     io::{self, IsTerminal, Write},
     path::Path,
@@ -10,6 +9,7 @@ use std::{
 use album_info::AlbumInfo;
 use err::Result;
 use flexi_logger::Logger;
+use pareg::Pareg;
 use termal::printmcln;
 use track_info::TrackInfo;
 
@@ -37,8 +37,7 @@ fn main() -> ExitCode {
 fn start() -> Result<()> {
     Logger::try_with_env().unwrap().start()?;
 
-    let args: Vec<_> = env::args().collect();
-    let args = Args::parse(args.iter().into())?;
+    let args = Args::parse(Pareg::args())?;
     match args.action() {
         Action::Help => help(),
         Action::Encode(p) => encode(&args, p.as_ref())?,
