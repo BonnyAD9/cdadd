@@ -162,14 +162,15 @@ fn configure(album: &mut AlbumInfo) -> Result<bool> {
             match cmd.as_str() {
                 "done" | "d" => return Ok(true),
                 "quit" | "q" | "cancel" => return Ok(false),
+                "help" | "h" => {
+                    command_help();
+                }
                 _ => println!("Unknown command '{}'", cmd),
             }
             continue;
         }
 
-        let Some((fld, mut value)) =
-            cmd.split_once(|c| matches!(c, ':' | '='))
-        else {
+        let Some((fld, mut value)) = cmd.split_once('=') else {
             println!("Missing value for field");
             continue;
         };
@@ -178,7 +179,7 @@ fn configure(album: &mut AlbumInfo) -> Result<bool> {
         value = value.trim();
 
         match fld.as_ref() {
-            "disc name" => {
+            "dn" | "disc-name" => {
                 album.disc_name = Some(value.to_owned());
                 for (t, _) in album.tracks.iter_mut() {
                     t.disc_name = Some(value.to_owned());
@@ -190,7 +191,7 @@ fn configure(album: &mut AlbumInfo) -> Result<bool> {
                     t.album = Some(value.to_owned());
                 }
             }
-            "artist" | "album artist" => {
+            "artist" | "album-artist" => {
                 album.artist = Some(value.to_owned());
                 for (t, _) in album.tracks.iter_mut() {
                     t.album_artist = Some(value.to_owned());
@@ -209,13 +210,13 @@ fn configure(album: &mut AlbumInfo) -> Result<bool> {
                     t.disc = Some(disc);
                 }
             }
-            "cdindex" | "cdindex discid" => {
+            "cdindex" | "cdindex-discid" => {
                 album.cdindex = Some(value.to_owned());
                 for (t, _) in album.tracks.iter_mut() {
                     t.cdindex = Some(value.to_owned());
                 }
             }
-            "cddb" | "cddb discid" => {
+            "cddb" | "cddb-discid" => {
                 let cddb = match u32::from_str_radix(value, 16) {
                     Ok(d) => d,
                     Err(e) => {
@@ -253,4 +254,60 @@ fn configure(album: &mut AlbumInfo) -> Result<bool> {
         }
         print_album(album);
     }
+}
+
+fn command_help() {
+    let is_term = io::stdout().is_terminal();
+    let sign: Cow<str> = if is_term {
+        termal::gradient("BonnyAD9", (250, 50, 170), (180, 50, 240)).into()
+    } else {
+        "BonnyAD9".into()
+    };
+    printmcln!(
+        is_term,
+        "Welcome to {'i g}cdadd{'_} command help by {sign}
+{'g}Usage:
+  {'r}<field>{'w}=<value>{'_}
+    Set the given field for all songs in the album.
+
+  {'w}:{'c}<command>{'_}
+    Run the given command.
+
+{'g}Commands:
+  {'c}d  done{'_}
+    Encode and exit.
+
+  {'c}c  cancel  quit{'_}
+    Exit without encoding.
+
+  {'c}h  help{'_}
+    Print this help.
+
+{'g}Fields:
+  {'r}disc-name{'w}=<string>{'_}
+    Disc name.
+
+  {'r}album{'w}=<string>{'_}
+    Album name.
+
+  {'r}artist  album-artist{'w}=<string>{'_}
+    Album artist.
+
+  {'r}disc{'w}=<uint>{'_}
+    Disc number. (0 for no disc number).
+
+  {'r}cdindex  cdindex-discid{'w}=<string>{'_}
+    CdIndex disc id.
+
+  {'r}cddb  cddb-discid{'w}=<hex u32>{'_}
+    CDDB disc id.
+
+  {'r}date  year{'w}=<date>{'_}
+    Rrelease date. This can be either just year number or date in the format
+    `{'i}yyyy-MM-dd{'_}`.
+
+  {'r}genre{'w}=<string>{'_}
+    Music genre.
+"
+    );
 }
