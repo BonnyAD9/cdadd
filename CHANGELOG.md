@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.2
+- Properly parse strings.
+- Properly determine the main artist when there are multiple artists.
+
 ## v0.1.1
 - Add help command
 - Replace slashes in file names

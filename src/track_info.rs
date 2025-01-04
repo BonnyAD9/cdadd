@@ -1,6 +1,6 @@
 use std::{any::type_name, fmt::Display, path::Path, str::FromStr};
 
-use ini::{Ini, Properties};
+use ini::{Ini, ParseOption, Properties};
 use log::{error, warn};
 
 use crate::{date::Date, err::Result, get_perf::get_perf};
@@ -30,7 +30,13 @@ impl TrackInfo {
     where
         P: AsRef<Path>,
     {
-        let mut info = Ini::load_from_file(&path)?;
+        let mut info = Ini::load_from_file_opt(
+            &path,
+            ParseOption {
+                enabled_quote: false,
+                ..Default::default()
+            },
+        )?;
 
         let Some(inf) = info.section_mut::<String>(None) else {
             warn!("Inf file {:?} doesn't contain any info.", path.as_ref());
@@ -39,7 +45,14 @@ impl TrackInfo {
 
         let title = Self::get_string(inf, "Tracktitle");
 
-        let feat = title.as_ref().and_then(|t| get_perf(t).inspect_err(|e| warn!("Failed to parse features from the title '{t}': {e}")).ok()).unwrap_or_default();
+        let feat = title
+            .as_ref()
+            .and_then(|t| {
+                get_perf(t).inspect_err(|e| {
+            warn!("Failed to parse features from the title '{t}': {e}")
+        }).ok()
+            })
+            .unwrap_or_default();
 
         Ok(Self {
             cdindex: Self::get_string(inf, "CDINDEX_DISCID"),
@@ -52,7 +65,7 @@ impl TrackInfo {
             genre: None,
 
             isrc: Self::get_string(inf, "ISRC"),
-            artist: Self::get_string(inf, "Performer"),
+            artist: Self::get_artist(inf, "Performer"),
             feat,
             title,
             track: Self::get_parse(inf, "Track"),
@@ -68,16 +81,36 @@ impl TrackInfo {
         }
     }
 
+    fn get_artist(
+        inf: &mut Properties,
+        name: impl AsRef<str>,
+    ) -> Option<String> {
+        let s = Self::get_string(inf, name)?;
+        if let Some((v, _)) = s.split_once(',') {
+            Some(v.to_string())
+        } else if let Some((v, _)) = s.split_once(" Featuring ") {
+            Some(v.to_string())
+        } else {
+            Some(s)
+        }
+    }
+
     fn get_string<S>(inf: &mut Properties, name: S) -> Option<String>
     where
         S: AsRef<str>,
     {
         if let Some(s) = inf.remove(&name) {
+            let mut s = s.as_str();
+            s = s
+                .strip_prefix('\'')
+                .unwrap_or(s)
+                .strip_suffix('\'')
+                .unwrap_or(s);
             if s.is_empty() {
                 warn!("Value for property '{}' is empty.", name.as_ref());
                 None
             } else {
-                Some(s)
+                Some(s.to_string())
             }
         } else {
             warn!("Missing property '{}'.", name.as_ref());
