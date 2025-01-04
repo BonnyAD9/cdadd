@@ -1,13 +1,13 @@
 [package]
 name = "cdadd"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 
 [dependencies]
 flexi_logger = "0.28.0"
 log = "0.4.21"
-pareg = "0.5.1"
+pareg = "0.7.0"
 result = "1.0.0"
 rust-ini = "0.21.0"
-termal = "1.0.2"
+termal = "1.2.2"
 thiserror = "1.0.60"
