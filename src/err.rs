@@ -23,13 +23,7 @@ pub enum Error {
     #[error(transparent)]
     ParseInt(#[from] std::num::ParseIntError),
     #[error(transparent)]
-    Pareg(#[from] Box<pareg::ArgError>),
+    Pareg(#[from] pareg::ArgError),
     #[error(transparent)]
     Termal(#[from] termal::error::Error),
-}
-
-impl From<pareg::ArgError> for Error {
-    fn from(value: pareg::ArgError) -> Self {
-        Box::new(value).into()
-    }
 }

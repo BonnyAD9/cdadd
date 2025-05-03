@@ -5,7 +5,6 @@ use std::{
 };
 
 use log::warn;
-use result::OptionResultExt;
 
 use crate::{
     cddb_read::read_cddb, date::Date, err::Result, track_info::TrackInfo,
@@ -133,14 +132,14 @@ impl AlbumInfo {
         self.cddb = cddb
             .remove("DISCID")
             .map(|c| u32::from_str_radix(&c, 16))
-            .invert()?;
+            .transpose()?;
         if let Some(at) = cddb.remove("DTITLE") {
             if let Some((artist, album)) = at.split_once(" / ") {
                 self.artist = Some(artist.to_owned());
                 self.disc_name = Some(album.to_owned());
             }
         }
-        self.date = cddb.remove("DYEAR").map(|y| y.parse()).invert()?;
+        self.date = cddb.remove("DYEAR").map(|y| y.parse()).transpose()?;
         self.genre = cddb.remove("DGENRE");
 
         Ok(())
