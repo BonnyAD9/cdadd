@@ -1,5 +1,8 @@
 # Changelog
 
+## future
+- Properly escape filenames.
+
 ## v0.1.2
 - Properly parse strings.
 - Properly determine the main artist when there are multiple artists.

@@ -1,5 +1,6 @@
 use std::{fmt::Display, fs, path::Path, process::Command};
 
+use filesan::{replace_escape, Mode};
 use log::error;
 
 use crate::{album_info::AlbumInfo, err::Result, track_info::TrackInfo};
@@ -16,12 +17,14 @@ where
         cmd.args(["--best", "-o"]);
         cmd.arg(dst.as_ref().join(match (t.track, &t.title) {
             (Some(n), Some(t)) => {
-                format!("{n:02}. {}.flac", t.replace('/', "|"))
+                replace_escape(&format!("{n:02}. {t}.flac"), '-', Mode::all())
             }
             (Some(n), None) => format!("{n:02}.flac"),
-            (None, Some(t)) => {
-                format!("{:02}, {}.flac", i + 1, t.replace('/', "|"))
-            }
+            (None, Some(t)) => replace_escape(
+                &format!("{:02}. {t}.flac", i + 1),
+                '-',
+                Mode::all(),
+            ),
             _ => format!("{:02}.flac", i + 1),
         }));
         add_metadata(&mut cmd, t);
