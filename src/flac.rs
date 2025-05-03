@@ -1,6 +1,6 @@
 use std::{fmt::Display, fs, path::Path, process::Command};
 
-use filesan::{replace_escape, Mode};
+use filesan::{Mode, replace_escape};
 use log::error;
 
 use crate::{album_info::AlbumInfo, err::Result, track_info::TrackInfo};
