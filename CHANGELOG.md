@@ -1,6 +1,7 @@
 # Changelog
 
 ## future
+### Fixes
 - Properly escape filenames.
 
 ## v0.1.2
