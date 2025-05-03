@@ -10,5 +10,5 @@ log = "0.4.21"
 pareg = "0.7.0"
 result = "1.0.0"
 rust-ini = "0.21.0"
-termal = "1.2.2"
+termal = { version = "2.1.2", features = ["readers"] }
 thiserror = "1.0.60"

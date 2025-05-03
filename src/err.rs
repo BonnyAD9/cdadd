@@ -24,6 +24,8 @@ pub enum Error {
     ParseInt(#[from] std::num::ParseIntError),
     #[error(transparent)]
     Pareg(#[from] Box<pareg::ArgError>),
+    #[error(transparent)]
+    Termal(#[from] termal::error::Error),
 }
 
 impl From<pareg::ArgError> for Error {

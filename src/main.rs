@@ -1,7 +1,7 @@
 use std::{
     borrow::Cow,
     fmt::Display,
-    io::{self, IsTerminal, Write},
+    io::{self, IsTerminal},
     path::Path,
     process::ExitCode,
 };
@@ -10,7 +10,7 @@ use album_info::AlbumInfo;
 use err::Result;
 use flexi_logger::Logger;
 use pareg::Pareg;
-use termal::printmcln;
+use termal::{printmcln, raw::readers::prompt_to};
 use track_info::TrackInfo;
 
 use crate::cli::{Action, Args};
@@ -152,10 +152,9 @@ fn configure(album: &mut AlbumInfo) -> Result<bool> {
     let mut cmd = String::new();
 
     loop {
-        print!("> ");
-        _ = io::stdout().flush();
         cmd.clear();
-        io::stdin().read_line(&mut cmd)?;
+        prompt_to(&mut cmd, "> ")?;
+        println!();
         if let Some(cmd) = cmd.trim().strip_prefix(':') {
             let cmd = cmd.trim_start().to_lowercase();
             match cmd.as_str() {

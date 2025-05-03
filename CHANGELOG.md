@@ -1,6 +1,9 @@
 # Changelog
 
 ## future
+### Changes
+- Use better readline.
+
 ### Fixes
 - Properly escape filenames.
 
