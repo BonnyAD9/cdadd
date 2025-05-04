@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.4
+### Fixes
+- Fix filename escaping
+
 ## v0.1.3
 ### Changes
 - Use better readline.

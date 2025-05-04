@@ -17,7 +17,7 @@ where
         cmd.args(["--best", "-o"]);
         cmd.arg(dst.as_ref().join(match (t.track, &t.title) {
             (Some(n), Some(t)) => {
-                replace_escape(&format!("{n:02}. {t}.flac"), '-', Mode::all())
+                replace_escape(&format!("{n:02}. {t}.flac"), '-', Mode::ALL)
             }
             (Some(n), None) => format!("{n:02}.flac"),
             (None, Some(t)) => replace_escape(
