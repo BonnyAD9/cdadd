@@ -1,5 +1,9 @@
 # Changelog
 
+## future
+### Changes
+- Split featuring artists also by `,` and `and`.
+
 ## v0.1.4
 ### Fixes
 - Fix filename escaping
