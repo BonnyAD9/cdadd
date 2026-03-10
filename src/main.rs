@@ -78,7 +78,12 @@ Version {v}
     Enables interactive mode for metadata.
 
   {'y}-o  --output{'_}
-    Sets the output directory. This is {'i}cwd{'_} by default."
+    Sets the output directory. This is {'i}cwd{'_} by default.
+    
+ “ {'i}Teach me your way, Lord, that I may rely on your faithfulness;
+   give me an undivided heart, that I may fear your name.         {'_}”
+                                                     {'w bold}✝ Psalms 86:11{'_}
+"
     );
 }
 

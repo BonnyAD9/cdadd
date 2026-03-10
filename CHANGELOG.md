@@ -3,6 +3,7 @@
 ## future
 ### Changes
 - Split featuring artists also by `,` and `and`.
+- Update help.
 
 ## v0.1.4
 ### Fixes
