@@ -11,7 +11,8 @@ pub fn get_perf(s: &str) -> Result<Vec<String>> {
 
     Ok(perf
         .split('&')
-        .flat_map(|p| p.split('&'))
+        .flat_map(|p| p.split("and"))
+        .flat_map(|p| p.split(","))
         .map(|s| s.trim().to_owned())
         .collect())
 }
