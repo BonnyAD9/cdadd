@@ -1,7 +1,8 @@
 use crate::err::{Error, Result};
 
 pub fn get_perf(s: &str) -> Result<Vec<String>> {
-    let Some((_, perf)) = s.split_once("(feat. ") else {
+    let spl = s.split_once("(feat. ").or_else(|| s.split_once("(with "));
+    let Some((_, perf)) = spl else {
         return Ok(vec![]);
     };
 
